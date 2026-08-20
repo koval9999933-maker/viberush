@@ -1,0 +1,49 @@
+﻿/* Переменные для адаптации под Safe Area в Telegram */
+:root {
+    --sat: env(safe-area-inset-top);
+    --sab: env(safe-area-inset-bottom);
+    --primary: #00F2FE;
+    --accent: #FF2E93;
+}
+
+body {
+    background-color: #0B0B0C;
+    color: #FFFFFF;
+    padding-top: max(20px, var(--sat));
+    padding-bottom: max(20px, var(--sab));
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    box-sizing: border-box;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 16px 16px 16px;
+}
+
+button {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 12px;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+button:active {
+    transform: scale(0.95);
+    background: rgba(0, 242, 254, 0.2);
+}
+
+.btn-loading {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+#battleArena {
+    border: 1px solid rgba(0, 242, 254, 0.3);
+}

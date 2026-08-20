@@ -1,0 +1,48 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>VibeRush</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Подключаем Telegram WebApp SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Подключаем Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- Заголовок -->
+        <header style="padding: 10px; border-bottom: 1px solid #333;">
+            <h1 style="font-size: 18px; margin: 0; color: #00F2FE;">VibeRush</h1>
+            <div id="cryptoBalanceDisplay" style="font-size: 14px;">Баланс: 1000 VRSH</div>
+        </header>
+
+        <!-- Главная область батла -->
+        <main style="padding: 20px;">
+            <div id="battleArena" style="background: #1c1c1e; padding: 20px; border-radius: 15px; text-align: center;">
+                <div style="font-size: 20px; font-weight: bold;">Батл: Стример 1 vs Стример 2</div>
+                <div id="scoreDisplay" style="margin: 15px 0; font-size: 24px;">0 : 0</div>
+            </div>
+
+            <!-- Блок подарков для обоих стримеров -->
+            <div style="margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <!-- Стример 1 -->
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <div style="font-size: 14px; color: #00F2FE; text-align: center;">Стример 1</div>
+                    <button onclick="sendGiftSecure('🐟 Рыбка', 50, 1, 'fish', this)">🐟 Рыбка (-50)</button>
+                    <button onclick="sendGiftSecure('🚀 Ракета', 1000, 1, 'rocket', this)">🚀 Ракета (-1000)</button>
+                </div>
+                
+                <!-- Стример 2 -->
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <div style="font-size: 14px; color: #FF2E93; text-align: center;">Стример 2</div>
+                    <button onclick="sendGiftSecure('🐟 Рыбка', 50, 2, 'fish', this)">🐟 Рыбка (-50)</button>
+                    <button onclick="sendGiftSecure('🚀 Ракета', 1000, 2, 'rocket', this)">🚀 Ракета (-1000)</button>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
