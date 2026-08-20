@@ -2,47 +2,69 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>VibeRush</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VibeRush — Битва Стримеров</title>
+    <!-- Подключаем крутой современный шрифт Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <!-- Подключаем Telegram WebApp SDK -->
+    <!-- Telegram Web App SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- Подключаем Supabase SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-    <div id="app">
-        <!-- Заголовок -->
-        <header style="padding: 10px; border-bottom: 1px solid #333;">
-            <h1 style="font-size: 18px; margin: 0; color: #00F2FE;">VibeRush</h1>
-            <div id="cryptoBalanceDisplay" style="font-size: 14px;">Баланс: 1000 VRSH</div>
+    <div class="app-container">
+        <!-- Шапка профиля -->
+        <header class="header">
+            <div class="logo">⚡ VIBERUSH</div>
+            <div class="balance-badge">
+                <span class="coin-icon">🐟</span>
+                <span id="balance">1000</span> <small>VRSH</small>
+            </div>
         </header>
 
-        <!-- Главная область батла -->
-        <main style="padding: 20px;">
-            <div id="battleArena" style="background: #1c1c1e; padding: 20px; border-radius: 15px; text-align: center;">
-                <div style="font-size: 20px; font-weight: bold;">Батл: Стример 1 vs Стример 2</div>
-                <div id="scoreDisplay" style="margin: 15px 0; font-size: 24px;">0 : 0</div>
-            </div>
-
-            <!-- Блок подарков для обоих стримеров -->
-            <div style="margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                <!-- Стример 1 -->
-                <div style="display: flex; flex-direction: column; gap: 8px;">
-                    <div style="font-size: 14px; color: #00F2FE; text-align: center;">Стример 1</div>
-                    <button onclick="sendGiftSecure('🐟 Рыбка', 50, 1, 'fish', this)">🐟 Рыбка (-50)</button>
-                    <button onclick="sendGiftSecure('🚀 Ракета', 1000, 1, 'rocket', this)">🚀 Ракета (-1000)</button>
+        <!-- Главное поле битвы -->
+        <main class="battle-card">
+            <div class="battle-title">🔥 БАТЛ СТРИМЕРОВ 🔥</div>
+            <div class="score-board">
+                <div class="fighter-score">
+                    <span id="score1">0</span>
+                    <label>Стример 1</label>
                 </div>
-                
-                <!-- Стример 2 -->
-                <div style="display: flex; flex-direction: column; gap: 8px;">
-                    <div style="font-size: 14px; color: #FF2E93; text-align: center;">Стример 2</div>
-                    <button onclick="sendGiftSecure('🐟 Рыбка', 50, 2, 'fish', this)">🐟 Рыбка (-50)</button>
-                    <button onclick="sendGiftSecure('🚀 Ракета', 1000, 2, 'rocket', this)">🚀 Ракета (-1000)</button>
+                <div class="vs-badge">VS</div>
+                <div class="fighter-score">
+                    <span id="score2">0</span>
+                    <label>Стример 2</label>
                 </div>
             </div>
         </main>
+
+        <!-- Панель управления (Кнопки доната/поддержки) -->
+        <section class="controls">
+            <div class="column">
+                <h3>Стример 1</h3>
+                <button class="btn gift-btn" onclick="support(1, 50, 'fish')">
+                    <span>🐟 Рыбка</span>
+                    <span class="price">-50</span>
+                </button>
+                <button class="btn boost-btn" onclick="support(1, 1000, 'rocket')">
+                    <span>🚀 Ракета</span>
+                    <span class="price">-1000</span>
+                </button>
+            </div>
+
+            <div class="column">
+                <h3>Стример 2</h3>
+                <button class="btn gift-btn" onclick="support(2, 50, 'fish')">
+                    <span>🐟 Рыбка</span>
+                    <span class="price">-50</span>
+                </button>
+                <button class="btn boost-btn" onclick="support(2, 1000, 'rocket')">
+                    <span>🚀 Ракета</span>
+                    <span class="price">-1000</span>
+                </button>
+            </div>
+        </section>
     </div>
+
     <script src="app.js"></script>
 </body>
 </html>
