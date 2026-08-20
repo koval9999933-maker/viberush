@@ -4,17 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VibeRush — Битва Стримеров</title>
-    <!-- Подключаем крутой современный шрифт Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <!-- Telegram Web App SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- Supabase Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
     <div class="app-container">
-        <!-- Шапка профиля -->
+        <!-- Шапка (всегда видна) -->
         <header class="header">
             <div class="logo">⚡ VIBERUSH</div>
             <div class="balance-badge">
@@ -23,48 +20,85 @@
             </div>
         </header>
 
-        <!-- Главное поле битвы -->
-        <main class="battle-card">
-            <div class="battle-title">🔥 БАТЛ СТРИМЕРОВ 🔥</div>
-            <div class="score-board">
-                <div class="fighter-score">
-                    <span id="score1">0</span>
-                    <label>Стример 1</label>
+        <!-- ЭКРАН 1: БАТЛ (Главный) -->
+        <div id="screen-battle" class="screen active-screen">
+            <main class="battle-card">
+                <div class="battle-title">🔥 БАТЛ СТРИМЕРОВ 🔥</div>
+                <div class="score-board">
+                    <div class="fighter-score">
+                        <span id="score1">0</span>
+                        <label>Стример 1</label>
+                    </div>
+                    <div class="vs-badge">VS</div>
+                    <div class="fighter-score">
+                        <span id="score2">0</span>
+                        <label>Стример 2</label>
+                    </div>
                 </div>
-                <div class="vs-badge">VS</div>
-                <div class="fighter-score">
-                    <span id="score2">0</span>
-                    <label>Стример 2</label>
+            </main>
+
+            <section class="controls">
+                <div class="column">
+                    <h3>Стример 1</h3>
+                    <button class="btn gift-btn" onclick="support(1, 50, 'fish')">
+                        <span>🐟 Рыбка</span>
+                        <span class="price">-50</span>
+                    </button>
+                    <button class="btn boost-btn" onclick="support(1, 1000, 'rocket')">
+                        <span>🚀 Ракета</span>
+                        <span class="price">-1000</span>
+                    </button>
+                </div>
+
+                <div class="column">
+                    <h3>Стример 2</h3>
+                    <button class="btn gift-btn" onclick="support(2, 50, 'fish')">
+                        <span>🐟 Рыбка</span>
+                        <span class="price">-50</span>
+                    </button>
+                    <button class="btn boost-btn" onclick="support(2, 1000, 'rocket')">
+                        <span>🚀 Ракета</span>
+                        <span class="price">-1000</span>
+                    </button>
+                </div>
+            </section>
+        </div>
+
+        <!-- ЭКРАН 2: ЛИЧНЫЙ КАБИНЕТ -->
+        <div id="screen-cabinet" class="screen" style="display: none;">
+            <div class="battle-card" style="text-align: center; padding: 25px;">
+                <h2 style="color: #fff; margin-bottom: 15px;">👤 Личный кабинет</h2>
+                <p style="color: #aaa; margin: 8px 0;">Имя: <strong id="profile-name" style="color:#fff;">Геймер</strong></p>
+                <p style="color: #aaa; margin: 8px 0;">Telegram ID: <strong id="profile-id" style="color:#fff;">12345</strong></p>
+                <p style="color: #aaa; margin: 8px 0;">Ваш баланс: <strong id="profile-balance" style="color:#4ade80;">1000</strong> VRSH</p>
+            </div>
+        </div>
+
+        <!-- ЭКРАН 3: ТОП ИГРОКОВ -->
+        <div id="screen-top" class="screen" style="display: none;">
+            <div class="battle-card" style="padding: 20px;">
+                <h2 style="color: #fff; text-align: center; margin-bottom: 15px;">🏆 Топ Игроков</h2>
+                <div id="leaderboard-list" style="color: #aaa; font-size: 14px;">
+                    <p style="text-align: center;">Загрузка лидеров...</p>
                 </div>
             </div>
-        </main>
+        </div>
 
-        <!-- Панель управления (Кнопки доната/поддержки) -->
-        <section class="controls">
-            <div class="column">
-                <h3>Стример 1</h3>
-                <button class="btn gift-btn" onclick="support(1, 50, 'fish')">
-                    <span>🐟 Рыбка</span>
-                    <span class="price">-50</span>
-                </button>
-                <button class="btn boost-btn" onclick="support(1, 1000, 'rocket')">
-                    <span>🚀 Ракета</span>
-                    <span class="price">-1000</span>
-                </button>
-            </div>
-
-            <div class="column">
-                <h3>Стример 2</h3>
-                <button class="btn gift-btn" onclick="support(2, 50, 'fish')">
-                    <span>🐟 Рыбка</span>
-                    <span class="price">-50</span>
-                </button>
-                <button class="btn boost-btn" onclick="support(2, 1000, 'rocket')">
-                    <span>🚀 Ракета</span>
-                    <span class="price">-1000</span>
-                </button>
-            </div>
-        </section>
+        <!-- НИЖНЕЕ МЕНЮ НАВИГАЦИИ -->
+        <nav class="bottom-nav">
+            <button class="nav-item active" onclick="switchTab('battle', this)">
+                <span>🔥</span>
+                <small>Батл</small>
+            </button>
+            <button class="nav-item" onclick="switchTab('cabinet', this)">
+                <span>👤</span>
+                <small>Кабинет</small>
+            </button>
+            <button class="nav-item" onclick="switchTab('top', this)">
+                <span>🏆</span>
+                <small>Топ</small>
+            </button>
+        </nav>
     </div>
 
     <script src="app.js"></script>
