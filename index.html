@@ -11,7 +11,7 @@
 </head>
 <body>
     <div class="app-container">
-        <!-- Шапка (всегда видна) -->
+        <!-- Шапка -->
         <header class="header">
             <div class="logo">⚡ VIBERUSH</div>
             <div class="balance-badge">
@@ -35,16 +35,21 @@
                         <label>Стример 2</label>
                     </div>
                 </div>
+
+                <!-- Динамический прогресс-бар битвы -->
+                <div class="battle-progress-container">
+                    <div id="progress-bar" class="battle-progress-fill" style="width: 50%;"></div>
+                </div>
             </main>
 
             <section class="controls">
                 <div class="column">
                     <h3>Стример 1</h3>
-                    <button class="btn gift-btn" onclick="support(1, 50, 'fish')">
+                    <button class="btn gift-btn" onclick="support(1, 50, 'fish', event)">
                         <span>🐟 Рыбка</span>
                         <span class="price">-50</span>
                     </button>
-                    <button class="btn boost-btn" onclick="support(1, 1000, 'rocket')">
+                    <button class="btn boost-btn" onclick="support(1, 1000, 'rocket', event)">
                         <span>🚀 Ракета</span>
                         <span class="price">-1000</span>
                     </button>
@@ -52,11 +57,11 @@
 
                 <div class="column">
                     <h3>Стример 2</h3>
-                    <button class="btn gift-btn" onclick="support(2, 50, 'fish')">
+                    <button class="btn gift-btn" onclick="support(2, 50, 'fish', event)">
                         <span>🐟 Рыбка</span>
                         <span class="price">-50</span>
                     </button>
-                    <button class="btn boost-btn" onclick="support(2, 1000, 'rocket')">
+                    <button class="btn boost-btn" onclick="support(2, 1000, 'rocket', event)">
                         <span>🚀 Ракета</span>
                         <span class="price">-1000</span>
                     </button>
