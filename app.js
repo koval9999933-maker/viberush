@@ -11,21 +11,17 @@ let balance = 1000;
 let score1 = 0;
 let score2 = 0;
 
-// Элементы
 const balanceEl = document.getElementById('balance');
 const score1El = document.getElementById('score1');
 const score2El = document.getElementById('score2');
+const progressBarEl = document.getElementById('progress-bar');
 
 // Переключение вкладок меню
 window.switchTab = function(tabName, btnElement) {
-    // Скрываем все экраны
     document.getElementById('screen-battle').style.display = 'none';
     document.getElementById('screen-cabinet').style.display = 'none';
     document.getElementById('screen-top').style.display = 'none';
 
-    // Показываем нужный
-    document.getElementById('screen--' + tabName === 'screen--top' ? 'screen-top' : 'screen-' + tabName).style.display = 'block'; 
-    // Упрощенно:
     if(tabName === 'battle') document.getElementById('screen-battle').style.display = 'block';
     if(tabName === 'cabinet') {
         document.getElementById('screen-cabinet').style.display = 'block';
@@ -36,12 +32,10 @@ window.switchTab = function(tabName, btnElement) {
         loadLeaderboard();
     }
 
-    // Подсветка кнопок меню
     document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
     if(btnElement) btnElement.classList.add('active');
 }
 
-// Загрузка данных игрока
 async function loadPlayerData() {
     try {
         let { data, error } = await supabaseClient
@@ -72,10 +66,21 @@ async function saveToDB() {
         .eq('id', user.id);
 }
 
+// Обновление интерфейса и прогресс-бара
 function updateUI() {
     if (balanceEl) balanceEl.innerText = balance;
     if (score1El) score1El.innerText = score1;
     if (score2El) score2El.innerText = score2;
+
+    // Расчет процента для прогресс-бара батла
+    const total = score1 + score2;
+    let percent = 50; // по умолчанию ровно посередине
+    if (total > 0) {
+        percent = (score1 / total) * 100;
+    }
+    if (progressBarEl) {
+        progressBarEl.style.width = percent + '%';
+    }
 }
 
 function updateCabinetUI() {
@@ -84,7 +89,6 @@ function updateCabinetUI() {
     document.getElementById('profile-balance').innerText = balance;
 }
 
-// Загрузка топа игроков из базы
 async function loadLeaderboard() {
     const listEl = document.getElementById('leaderboard-list');
     listEl.innerHTML = '<p style="text-align:center;">Загрузка...</p>';
@@ -114,8 +118,8 @@ async function loadLeaderboard() {
     listEl.innerHTML = html;
 }
 
-// Кнопка поддержки
-window.support = async function(streamerNum, cost, type) {
+// Поддержка с эффектом всплывающего плюса
+window.support = async function(streamerNum, cost, type, event) {
     if (balance < cost) {
         alert('Недостаточно VRSH на балансе!');
         return;
@@ -128,6 +132,27 @@ window.support = async function(streamerNum, cost, type) {
 
     updateUI();
     await saveToDB();
+
+    // Создаем эффект всплывающего текста поверх нажатой кнопки
+    if (event && event.currentTarget) {
+        showFloatingText(event.currentTarget, `+${cost}`);
+    }
+}
+
+// Анимация всплывающих очков
+function showFloatingText(buttonElement, text) {
+    const floatEl = document.createElement('div');
+    floatEl.innerText = text;
+    floatEl.className = 'floating-score';
+    
+    const rect = buttonElement.getBoundingClientRect();
+    floatEl.style.left = (rect.left + rect.width / 2) + 'px';
+    floatEl.style.top = rect.top + 'px';
+    
+    document.body.appendChild(floatEl);
+    setTimeout(() => {
+        floatEl.remove();
+    }, 800);
 }
 
 loadPlayerData();
