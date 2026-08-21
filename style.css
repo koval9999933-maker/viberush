@@ -22,7 +22,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 20px;
-    padding-bottom: 80px; /* Отступ снизу, чтобы меню не перекрывало контент */
+    padding-bottom: 80px;
 }
 
 /* Шапка */
@@ -89,6 +89,7 @@ body {
     display: flex;
     justify-content: space-around;
     align-items: center;
+    margin-bottom: 16px;
 }
 
 .fighter-score {
@@ -124,6 +125,24 @@ body {
     border: 1px solid rgba(255, 0, 127, 0.3);
 }
 
+/* Шкала прогресса битвы */
+.battle-progress-container {
+    width: 100%;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+.battle-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #ff007f, #00f2fe);
+    width: 50%;
+    transition: width 0.4s ease;
+    border-radius: 4px;
+}
+
 /* Кнопки управления */
 .controls {
     display: grid;
@@ -157,6 +176,7 @@ body {
     align-items: center;
     cursor: pointer;
     transition: all 0.2s ease;
+    position: relative;
 }
 
 .btn:active {
@@ -187,7 +207,30 @@ body {
     border-radius: 6px;
 }
 
-/* Стили для нижнего меню навигации (чтобы подходили под дизайн) */
+/* Анимация всплывающего текста очков */
+.floating-score {
+    position: fixed;
+    color: #4ade80;
+    font-weight: 800;
+    font-size: 16px;
+    pointer-events: none;
+    animation: floatUp 0.8s ease-out forwards;
+    z-index: 9999;
+    text-shadow: 0 0 10px rgba(74, 222, 128, 0.5);
+}
+
+@keyframes floatUp {
+    0% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-40px) scale(1.2);
+    }
+}
+
+/* Стили нижнего меню навигации */
 .bottom-nav {
     position: fixed;
     bottom: 0;
