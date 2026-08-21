@@ -17,25 +17,13 @@ const score1El = document.getElementById('score1');
 const score2El = document.getElementById('score2');
 const progressBarEl = document.getElementById('progress-bar');
 
-// Подписка на любые изменения таблицы — теперь общие очки обновляются у всех моментально!
+// Подписка на обновление ОБЩИХ очков в реальном времени
 supabaseClient
-  .channel('public:players')
-  .on('postgres_changes', { 
-    event: '*', 
-    schema: 'public', 
-    table: 'players' 
-  }, (payload) => {
-    console.log('Изменение в базе:', payload);
-    // Если обновили общие очки батла
+  .channel('public:game_stats')
+  .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'game_stats' }, (payload) => {
     if (payload.new) {
-      if (payload.new.score1 !== undefined) score1 = payload.new.score1;
-      if (payload.new.score2 !== undefined) score2 = payload.new.score2;
-      
-      // Если это наш пользователь, подтягиваем его баланс
-      if (payload.new.id === user.id) {
-        balance = payload.new.balance;
-        lastBonusDate = payload.new.last_bonus || '';
-      }
+      score1 = payload.new.score1;
+      score2 = payload.new.score2;
       updateUI();
     }
   })
@@ -111,6 +99,7 @@ window.switchTab = function(tabName, btnElement) {
 
 async function loadPlayerData() {
     try {
+        // 1. Загружаем личный баланс игрока
         let { data, error } = await supabaseClient
             .from('players')
             .select('*')
@@ -120,19 +109,22 @@ async function loadPlayerData() {
         if (error || !data) {
             await supabaseClient
                 .from('players')
-                .insert([{ id: user.id, username: user.first_name, balance: 1000, score1: 0, score2: 0, last_bonus: '' }]);
+                .insert([{ id: user.id, username: user.first_name, balance: 1000, last_bonus: '' }]);
         } else {
             balance = data.balance;
-            score1 = data.score1;
-            score2 = data.score2;
             lastBonusDate = data.last_bonus || '';
         }
-        
-        // Также подтянем самые свежие глобальные очки из первой попавшейся записи, если они там есть
-        let { data: globalData } = await supabaseClient.from('players').select('score1, score2').limit(1);
-        if (globalData && globalData.length > 0) {
-            score1 = globalData[0].score1 || 0;
-            score2 = globalData[0].score2 || 0;
+
+        // 2. Загружаем общие очки батла
+        let { data: stats } = await supabaseClient
+            .from('game_stats')
+            .select('*')
+            .eq('id', 1)
+            .single();
+
+        if (stats) {
+            score1 = stats.score1 || 0;
+            score2 = stats.score2 || 0;
         }
 
         updateUI();
@@ -141,10 +133,10 @@ async function loadPlayerData() {
     }
 }
 
-async function saveToDB() {
+async function saveBalanceToDB() {
     await supabaseClient
         .from('players')
-        .update({ balance: balance, score1: score1, score2: score2, last_bonus: lastBonusDate })
+        .update({ balance: balance, last_bonus: lastBonusDate })
         .eq('id', user.id);
 }
 
@@ -193,7 +185,7 @@ window.claimDailyBonus = async function() {
     playSound('bonus');
     updateUI();
     updateCabinetUI();
-    await saveToDB();
+    await saveBalanceToDB();
     alert('Вы успешно получили ежедневный бонус +200 VRSH!');
 }
 
@@ -226,6 +218,7 @@ async function loadLeaderboard() {
     listEl.innerHTML = html;
 }
 
+// Поддержка стримера (обновляет общую таблицу game_stats)
 window.support = async function(streamerNum, cost, type, event) {
     if (balance < cost) {
         alert('Недостаточно VRSH на балансе!');
@@ -235,11 +228,23 @@ window.support = async function(streamerNum, cost, type, event) {
     balance -= cost;
     playSound('click');
 
-    if (streamerNum === 1) score1 += cost;
-    else if (streamerNum === 2) score2 += cost;
+    // Считаем новые общие очки
+    let newScore1 = streamerNum === 1 ? score1 + cost : score1;
+    let newScore2 = streamerNum === 2 ? score2 + cost : score2;
 
+    // Обновляем локально для скорости
+    score1 = newScore1;
+    score2 = newScore2;
     updateUI();
-    await saveToDB();
+
+    // 1. Сохраняем уменьшенный баланс игрока
+    await saveBalanceToDB();
+
+    // 2. Отправляем новые общие очки в таблицу game_stats (все увидят мгновенно!)
+    await supabaseClient
+        .from('game_stats')
+        .update({ score1: newScore1, score2: newScore2 })
+        .eq('id', 1);
 
     if (event && event.currentTarget) {
         showFloatingText(event.currentTarget, `+${cost}`);
