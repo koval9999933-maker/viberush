@@ -17,6 +17,30 @@ const score1El = document.getElementById('score1');
 const score2El = document.getElementById('score2');
 const progressBarEl = document.getElementById('progress-bar');
 
+// Подписка на любые изменения таблицы — теперь общие очки обновляются у всех моментально!
+supabaseClient
+  .channel('public:players')
+  .on('postgres_changes', { 
+    event: '*', 
+    schema: 'public', 
+    table: 'players' 
+  }, (payload) => {
+    console.log('Изменение в базе:', payload);
+    // Если обновили общие очки батла
+    if (payload.new) {
+      if (payload.new.score1 !== undefined) score1 = payload.new.score1;
+      if (payload.new.score2 !== undefined) score2 = payload.new.score2;
+      
+      // Если это наш пользователь, подтягиваем его баланс
+      if (payload.new.id === user.id) {
+        balance = payload.new.balance;
+        lastBonusDate = payload.new.last_bonus || '';
+      }
+      updateUI();
+    }
+  })
+  .subscribe();
+
 // Генератор звуков без внешних файлов (Web Audio API)
 function playSound(type) {
     try {
@@ -34,20 +58,18 @@ function playSound(type) {
             osc.start();
             osc.stop(audioCtx.currentTime + 0.08);
         } else if (type === 'bonus') {
-            osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // До
-            osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); // Ми
-            osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2); // Соль
+            osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+            osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
+            osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2);
             gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
             gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
             osc.start();
             osc.stop(audioCtx.currentTime + 0.4);
         }
-    } catch (e) {
-        // Звуки заблокированы браузером до первого клика — это нормально
-    }
+    } catch (e) {}
 }
 
-// Таймер обратного отсчета раунда (например, 5 минут)
+// Таймер обратного отсчета раунда
 let timeLeft = 300; 
 function startTimer() {
     const timerEl = document.getElementById('battle-timer');
@@ -60,7 +82,7 @@ function startTimer() {
                 timerEl.innerText = `⏳ ${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
             }
         } else {
-            timeLeft = 300; // сброс раунда
+            timeLeft = 300;
         }
     }, 1000);
 }
@@ -105,6 +127,14 @@ async function loadPlayerData() {
             score2 = data.score2;
             lastBonusDate = data.last_bonus || '';
         }
+        
+        // Также подтянем самые свежие глобальные очки из первой попавшейся записи, если они там есть
+        let { data: globalData } = await supabaseClient.from('players').select('score1, score2').limit(1);
+        if (globalData && globalData.length > 0) {
+            score1 = globalData[0].score1 || 0;
+            score2 = globalData[0].score2 || 0;
+        }
+
         updateUI();
     } catch (err) {
         console.error('Ошибка загрузки:', err);
@@ -137,11 +167,9 @@ function updateCabinetUI() {
     document.getElementById('profile-name').innerText = user.first_name;
     document.getElementById('profile-id').innerText = user.id;
     document.getElementById('profile-balance').innerText = balance;
-
     checkBonusButtonState();
 }
 
-// Проверка доступности ежедневного бонуса
 function checkBonusButtonState() {
     const btn = document.getElementById('bonus-btn');
     const today = new Date().toDateString();
@@ -156,7 +184,6 @@ function checkBonusButtonState() {
     }
 }
 
-// Функция получения ежедневного бонуса
 window.claimDailyBonus = async function() {
     const today = new Date().toDateString();
     if (lastBonusDate === today) return;
@@ -199,7 +226,6 @@ async function loadLeaderboard() {
     listEl.innerHTML = html;
 }
 
-// Поддержка стримера
 window.support = async function(streamerNum, cost, type, event) {
     if (balance < cost) {
         alert('Недостаточно VRSH на балансе!');
